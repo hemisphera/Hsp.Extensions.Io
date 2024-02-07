@@ -128,7 +128,8 @@ namespace Hsp.Extensions.Io
       while (!_process.HasExited)
         await Task.Delay(500, token);
       var ec = ExitCode ?? -1; // exit code will never be null when _process has exited
-      if (!exitCodeIsValid(ec)) throw new InvalidOperationException();
+      if (!exitCodeIsValid(ec))
+        throw new InvalidOperationException($"The process has exited with an invalid exit code ({ec})");
       return this;
     }
 
