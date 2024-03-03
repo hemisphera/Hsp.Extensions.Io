@@ -23,6 +23,22 @@ namespace Hsp.Extensions.Io
     }
 
     /// <summary>
+    /// Resolves the string as a relatve path from the given root path. 
+    /// </summary>
+    /// <param name="relativePath">The relative path to resolve.</param>
+    /// <param name="rootPath">The root path to resolve from.</param>
+    /// <returns>The resolved path.</returns>
+    public static string ResolvePathFrom(this string relativePath, string rootPath)
+    {
+      if (string.IsNullOrEmpty(relativePath))
+        relativePath = ".";
+      return string.IsNullOrEmpty(rootPath)
+        ? relativePath
+        : Path.GetFullPath(Path.Combine(rootPath, relativePath));
+    }
+
+
+    /// <summary>
     /// Deletes all empty folders within a directory tree.
     /// </summary>
     /// <param name="dir">The root folder</param>
