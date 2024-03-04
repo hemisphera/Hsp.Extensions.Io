@@ -127,8 +127,9 @@ namespace Hsp.Extensions.Io
       {
         if (callback?.Invoke(file) == false) return;
 
-        file.Directory?.Create();
-        file.CopyTo(Path.Combine(targetPath, file.Name), true);
+        var targetFile = new FileInfo(Path.Combine(targetPath, file.Name));
+        targetFile.Directory?.Create();
+        file.CopyTo(targetFile.FullName, true);
         if (deleteSourceFile) file.Delete();
       }, false);
 
