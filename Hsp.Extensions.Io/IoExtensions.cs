@@ -260,7 +260,7 @@ namespace Hsp.Extensions.Io
       foreach (var subDir in folder.EnumerateDirectories())
       {
         var skip = callback?.Invoke(subDir) == false;
-        if (recurse && !skip) subDir.ForEachEntry(callback);
+        if (recurse && !skip) subDir.ForEachEntry(callback, true);
       }
 
       foreach (var file in folder.EnumerateFiles())
