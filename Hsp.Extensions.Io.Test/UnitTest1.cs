@@ -26,4 +26,15 @@ public class UnitTest1
     Assert.NotEmpty(result.OutputLines);
     Assert.Empty(result.ErrorLines);
   }
+
+  [Theory]
+  [InlineData("c:\\program files\\some.exe data /config \"random\"", 3)]
+  [InlineData("\"c:\\program files\\some.exe\" \"data /config\" \"random\"", 2)]
+  [InlineData("c:\\programfiles\\some.exe data /config \"random\"", 3)]
+  public void ParseBinPath(string binPath, int expectedParts)
+  {
+    var si = ServiceImage.FromBinPath(binPath);
+    Assert.EndsWith(".exe", si.Filename.Unenclose(), StringComparison.OrdinalIgnoreCase);
+    Assert.Equal(expectedParts, si.ArgumentParts.Count);
+  }
 }
