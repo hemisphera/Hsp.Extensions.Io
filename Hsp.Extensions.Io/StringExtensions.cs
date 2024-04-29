@@ -78,7 +78,7 @@ namespace Hsp.Extensions.Io
     public static string Enclose(this string instr, string delim = "\"")
     {
       instr = instr.Trim();
-      var requiresEnclose = instr.StartsWith(delim) && instr.EndsWith(delim);
+      var requiresEnclose = !instr.StartsWith(delim) && !instr.EndsWith(delim);
       return !requiresEnclose ? instr : $"{delim}{instr}{delim}";
     }
 

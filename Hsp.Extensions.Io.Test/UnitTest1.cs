@@ -37,4 +37,13 @@ public class UnitTest1
     Assert.EndsWith(".exe", si.Filename.Unenclose(), StringComparison.OrdinalIgnoreCase);
     Assert.Equal(expectedParts, si.ArgumentParts.Count);
   }
+
+  [Theory]
+  [InlineData("some string")]
+  [InlineData("\"some string\"")]
+  public void Enclose(string str)
+  {
+    str = str.Enclose();
+    Assert.True(str.EndsWith("\"") && str.StartsWith("\""));
+  }
 }
