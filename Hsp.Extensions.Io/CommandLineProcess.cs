@@ -26,6 +26,11 @@ namespace Hsp.Extensions.Io
 
     private readonly Action<string> _errorCallback;
 
+    /// <summary>
+    /// Returns the process ID of the spawned process.
+    /// </summary>
+    public int ProcessId => _process.Id;
+
 
     /// <summary>
     /// Contains the lines that the process has written to stdout.
@@ -196,6 +201,15 @@ namespace Hsp.Extensions.Io
     {
       if (ErrorLines.Count > 0)
         throw new Exception(String.Join(Environment.NewLine, ErrorLines));
+    }
+
+    /// <summary>
+    /// Returns the underlying Process object.
+    /// </summary>
+    /// <returns>The underlying Process object.</returns>
+    public Process GetProcess()
+    {
+      return _process;
     }
 
     /// <inheritdoc />
