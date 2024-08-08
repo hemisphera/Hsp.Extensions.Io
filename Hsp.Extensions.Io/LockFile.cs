@@ -15,6 +15,12 @@ namespace Hsp.Extensions.Io
 
     private static readonly TimeSpan ProcessCheckFrequency = TimeSpan.FromSeconds(5);
 
+    
+    /// <summary>
+    /// Specifies whether the lock-file is currently locked.
+    /// </summary>
+    public bool IsLocked => File.Exists(_filePath);
+    
 
     /// <summary>
     /// Creates a new lock file.
@@ -27,12 +33,13 @@ namespace Hsp.Extensions.Io
 
 
     /// <summary>
-    /// Waits for the lock-file to be free (= non-existant) and thus creates it with the current process as its owner.
+    /// Waits for the lock-file to be free (= non-existant) and optionlaly creates it with the current process as its owner.
     /// </summary>
-    public async Task Wait()
+    /// <param name="withLock">Whether to lock the file once it has been released.</param>
+    public async Task Wait(bool withLock = true)
     {
       Stopwatch sw = null;
-      while (File.Exists(_filePath))
+      while (IsLocked)
       {
         await Task.Delay(TimeSpan.FromMilliseconds(500));
         if (sw == null || sw.Elapsed > ProcessCheckFrequency)
@@ -43,7 +50,8 @@ namespace Hsp.Extensions.Io
         }
       }
 
-      CreateFile();
+      if (withLock)
+        Lock();
     }
 
     /// <summary>
@@ -68,10 +76,10 @@ namespace Hsp.Extensions.Io
     /// <exception cref="ProcessNotFoundException"></exception>
     public async Task<Process> GetLockedByProcess()
     {
-      if (!File.Exists(_filePath)) return null;
+      if (!IsLocked) return null;
 
       Process process = null;
-      var pidText = String.Empty;
+      var pidText = string.Empty;
       try
       {
         int pid;
@@ -110,8 +118,16 @@ namespace Hsp.Extensions.Io
       }
     }
 
-    private void CreateFile()
+    /// <summary>
+    /// Locks the lock-file with the current process as its owner.
+    /// </summary>
+    public void Lock()
     {
+      if (IsLocked)
+      {
+        throw new InvalidOperationException("The lock-file is already locked.");
+      }
+      
       var directoryPath = Path.GetDirectoryName(_filePath);
       if (!string.IsNullOrEmpty(directoryPath))
       {
