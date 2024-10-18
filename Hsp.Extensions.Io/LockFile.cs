@@ -15,12 +15,14 @@ namespace Hsp.Extensions.Io
 
     private static readonly TimeSpan ProcessCheckFrequency = TimeSpan.FromSeconds(5);
 
-    
+
     /// <summary>
     /// Specifies whether the lock-file is currently locked.
     /// </summary>
     public bool IsLocked => File.Exists(_filePath);
-    
+
+    public TimeSpan PollingFrequency { get; set; }
+
 
     /// <summary>
     /// Creates a new lock file.
@@ -29,6 +31,8 @@ namespace Hsp.Extensions.Io
     public LockFile(string path)
     {
       _filePath = path;
+      var rng = new Random();
+      PollingFrequency = TimeSpan.FromMilliseconds(600 + rng.Next(0, 401) - 200);
     }
 
 
@@ -41,7 +45,7 @@ namespace Hsp.Extensions.Io
       Stopwatch sw = null;
       while (IsLocked)
       {
-        await Task.Delay(TimeSpan.FromMilliseconds(500));
+        await Task.Delay(PollingFrequency);
         if (sw == null || sw.Elapsed > ProcessCheckFrequency)
         {
           sw?.Stop();
@@ -127,7 +131,7 @@ namespace Hsp.Extensions.Io
       {
         throw new InvalidOperationException("The lock-file is already locked.");
       }
-      
+
       var directoryPath = Path.GetDirectoryName(_filePath);
       if (!string.IsNullOrEmpty(directoryPath))
       {
