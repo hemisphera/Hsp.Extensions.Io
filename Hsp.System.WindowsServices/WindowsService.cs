@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
@@ -114,7 +115,7 @@ namespace Hsp.System.WindowsServices
     {
       Name = name;
       var exists = ServiceController.GetServices().Any(a => a.ServiceName.Equals(name, StringComparison.OrdinalIgnoreCase));
-      if (!exists) throw new Exception($"Service '{name}' does not exist.");
+      if (!exists) throw new KeyNotFoundException($"Service '{name}' does not exist.");
       _controller = new ServiceController(name);
     }
 
