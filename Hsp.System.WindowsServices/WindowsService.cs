@@ -57,6 +57,18 @@ namespace Hsp.System.WindowsServices
       }
     }
 
+    public bool IsInPendingStatus
+    {
+      get
+      {
+        _controller.Refresh();
+        return _controller.Status == ServiceControllerStatus.StartPending ||
+               _controller.Status == ServiceControllerStatus.StopPending ||
+               _controller.Status == ServiceControllerStatus.PausePending ||
+               _controller.Status == ServiceControllerStatus.ContinuePending;
+      }
+    }
+
     /// <summary>
     /// Specifies the full path (including arguments) to the image the service is for.
     /// </summary>
@@ -170,7 +182,22 @@ namespace Hsp.System.WindowsServices
         await WaitForStatus(ServiceControllerStatus.Running, waitTimeout.Value, ct);
     }
 
+    public async Task WaitForNonPendingStatus(TimeSpan waitTimeout, CancellationToken ct = default)
     {
+      if (!IsInPendingStatus) return;
+
+      var delay = TimeSpan.FromMilliseconds(500);
+      var st = DateTime.Now;
+      do
+      {
+        ct.ThrowIfCancellationRequested();
+        if (IsInPendingStatus)
+          await Task.Delay(delay, ct);
+        if (DateTime.Now.Subtract(st) > waitTimeout)
+          throw new TimeoutException(
+            $"The given timeout '{waitTimeout.TotalMilliseconds}'ms has elapsed while waiting for service '{Name}' to exit pending status.");
+      } while (IsInPendingStatus);
+    }
 
     public async Task WaitForStatus(ServiceControllerStatus reqStatus, TimeSpan waitTimeout, CancellationToken ct = default)
     {
