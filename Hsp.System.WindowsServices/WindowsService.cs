@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hsp.Extensions.Io;
 using Microsoft.Win32;
+using TimeoutException = System.ServiceProcess.TimeoutException;
 
 namespace Hsp.System.WindowsServices
 {
@@ -148,7 +149,8 @@ namespace Hsp.System.WindowsServices
         throw new ServiceStatusException(Name, ServiceControllerStatus.Running);
       if (_controller.Status == ServiceControllerStatus.Running)
         _controller.Stop();
-      await WaitForStatus(ServiceControllerStatus.Stopped, waitTimeout, ct);
+      if (waitTimeout != null)
+        await WaitForStatus(ServiceControllerStatus.Stopped, waitTimeout.Value, ct);
     }
 
     public Task StartService(CancellationToken ct = default)
@@ -164,13 +166,14 @@ namespace Hsp.System.WindowsServices
         throw new ServiceStatusException(Name, ServiceControllerStatus.Stopped);
       if (_controller.Status == ServiceControllerStatus.Stopped)
         _controller.Start();
-      await WaitForStatus(ServiceControllerStatus.Running, waitTimeout, ct);
+      if (waitTimeout != null)
+        await WaitForStatus(ServiceControllerStatus.Running, waitTimeout.Value, ct);
     }
 
-    private async Task WaitForStatus(ServiceControllerStatus reqStatus, TimeSpan? waitTimeout, CancellationToken ct = default)
     {
-      if (waitTimeout == null) return;
 
+    public async Task WaitForStatus(ServiceControllerStatus reqStatus, TimeSpan waitTimeout, CancellationToken ct = default)
+    {
       ServiceControllerStatus serviceStatus;
       var delay = TimeSpan.FromMilliseconds(500);
       var st = DateTime.Now;
@@ -182,8 +185,8 @@ namespace Hsp.System.WindowsServices
         if (_controller.Status != reqStatus)
           await Task.Delay(delay, ct);
         if (DateTime.Now.Subtract(st) > waitTimeout)
-          throw new global::System.TimeoutException(
-            $"The given timeout '{waitTimeout.Value.TotalMilliseconds}'ms has elapsed while waiting for service '{Name}' to reach status '{reqStatus}'.");
+          throw new TimeoutException(
+            $"The given timeout '{waitTimeout.TotalMilliseconds}'ms has elapsed while waiting for service '{Name}' to reach status '{reqStatus}'.");
       } while (serviceStatus != reqStatus);
     }
   }
