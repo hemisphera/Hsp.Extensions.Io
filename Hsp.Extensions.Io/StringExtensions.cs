@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Hsp.Extensions.Io
@@ -8,6 +10,11 @@ namespace Hsp.Extensions.Io
   /// </summary>
   public static class StringExtensions
   {
+    public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
+    {
+      return string.IsNullOrEmpty(str);
+    }
+
     /// <summary>
     /// Splits a string that contains quoted fields into an array of strings.
     /// </summary>
@@ -15,8 +22,9 @@ namespace Hsp.Extensions.Io
     /// <param name="delimiter">The delimiter to split by.</param>
     /// <param name="quotes">The characters that can be used as quotes.</param>
     /// <returns>An array split by non-enclosed spaces.</returns>
-    public static string[] SplitQuotedString(this string str, char delimiter = ' ', string quotes = "\"'")
+    public static string[] SplitQuotedString(this string? str, char delimiter = ' ', string quotes = "\"'")
     {
+      if (str.IsNullOrEmpty()) return Array.Empty<string>();
       str += " ";
       var currPart = "";
 
@@ -79,6 +87,8 @@ namespace Hsp.Extensions.Io
     {
       instr = instr.Trim();
       var requiresEnclose = !instr.StartsWith(delim) && !instr.EndsWith(delim);
+      // escape any existing delimiters
+      instr = instr.Replace(delim, @"\" + delim);
       return !requiresEnclose ? instr : $"{delim}{instr}{delim}";
     }
 
@@ -92,6 +102,7 @@ namespace Hsp.Extensions.Io
     {
       instr = instr.Trim();
       var isEnclosed = instr.StartsWith(delim) && instr.EndsWith(delim);
+      
       return isEnclosed
         ? instr.Substring(delim.Length, instr.Length - delim.Length * 2)
         : instr;

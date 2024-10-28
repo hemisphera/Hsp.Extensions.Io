@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Hsp.Extensions.Io;
 
-namespace Hsp.Extensions.Io
+namespace Hsp.System.WindowsServices
 {
   /// <summary>
   /// The image of a windows service.
@@ -17,12 +18,7 @@ namespace Hsp.Extensions.Io
     /// <summary>
     /// The arguments string.
     /// </summary>
-    public string Arguments => GetArgumentsString();
-
-    /// <summary>
-    /// The split parts of the arguments.
-    /// </summary>
-    public List<string> ArgumentParts { get; } = new List<string>();
+    public string? Arguments { get; set; }
 
 
     /// <summary>
@@ -30,7 +26,8 @@ namespace Hsp.Extensions.Io
     /// </summary>
     /// <param name="imgPath">The path to the binary.</param>
     /// <returns>An instance.</returns>
-    public static ServiceImage FromBinPath(string imgPath)
+    [return: NotNullIfNotNull("imgPath")]
+    public static ServiceImage? FromBinPath(string? imgPath)
     {
       var parts = imgPath.SplitQuotedString().ToList();
       if (!parts.Any()) return null;
@@ -58,9 +55,10 @@ namespace Hsp.Extensions.Io
     /// </summary>
     /// <param name="filename">The executable filename.</param>
     /// <param name="arguments">The arguments string.</param>
-    public ServiceImage(string filename, string arguments = null)
-      : this(filename, arguments.SplitQuotedString())
+    public ServiceImage(string filename, string? arguments = null)
     {
+      Filename = filename;
+      Arguments = arguments;
     }
 
     /// <summary>
@@ -69,9 +67,8 @@ namespace Hsp.Extensions.Io
     /// <param name="filename">The executable filename.</param>
     /// <param name="arguments">The argument parts.</param>
     public ServiceImage(string filename, params string[] arguments)
+      : this(filename, string.Join(" ", arguments.Select(arg => arg.EncloseIf(arg.Contains(' ')))))
     {
-      Filename = filename;
-      ArgumentParts.AddRange(arguments);
     }
 
 
@@ -82,16 +79,6 @@ namespace Hsp.Extensions.Io
       return string.IsNullOrEmpty(Arguments)
         ? exeName
         : $"{exeName} {Arguments}";
-    }
-
-    /// <summary>
-    /// Creates a string from the argument parts.
-    /// </summary>
-    /// <param name="enclose">Indicates whether to enclose parts with spaces.</param>
-    /// <returns></returns>
-    public string GetArgumentsString(bool enclose = true)
-    {
-      return string.Join(" ", ArgumentParts.Select(arg => arg.EncloseIf(enclose && arg.Contains(" "))));
     }
   }
 }

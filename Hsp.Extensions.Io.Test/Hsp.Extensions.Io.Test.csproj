@@ -24,6 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Hsp.Extensions.Io\Hsp.Extensions.Io.csproj" />
+      <ProjectReference Include="..\Hsp.System.WindowsServices\Hsp.System.WindowsServices.csproj" />
     </ItemGroup>
 
 </Project>

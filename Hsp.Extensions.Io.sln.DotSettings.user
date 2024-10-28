@@ -1,8 +1,12 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AServiceController_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003FUsers_003Fthomas_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F5efaa590064541df991c2fdc597dbb8592a0_003Fff_003F10b7fb52_003FServiceController_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ATestInvoker_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003FUsers_003Fthomas_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FSourcesCache_003Ff5545b2656401abe1a371ad2756d7d2328a38293f7ee8b163801bbf55cee8_003FTestInvoker_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=cad9dada_002Dd2ef_002D400d_002Db310_002D88ad7041d2d6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::3D1EA9D8-D723-4E7C-BE55-9F424995AAD1::net8.0::Hsp.Extensions.Io.Test.UnitTest1.RunCmdAndList&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::3D1EA9D8-D723-4E7C-BE55-9F424995AAD1::net8.0::Hsp.Extensions.Io.Test.UnitTest1.CopyFolder&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::3D1EA9D8-D723-4E7C-BE55-9F424995AAD1::net8.0::Hsp.Extensions.Io.Test.UnitTest1.ParseBinPath&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::3D1EA9D8-D723-4E7C-BE55-9F424995AAD1::net8.0::Hsp.Extensions.Io.Test.UnitTest1.Enclose&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::3D1EA9D8-D723-4E7C-BE55-9F424995AAD1::net8.0::Hsp.Extensions.Io.Test.UnitTest1.GetService&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

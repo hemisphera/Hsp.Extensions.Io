@@ -1,3 +1,5 @@
+using Hsp.System.WindowsServices;
+
 namespace Hsp.Extensions.Io.Test;
 
 public class UnitTest1
@@ -34,8 +36,8 @@ public class UnitTest1
   public void ParseBinPath(string binPath, int expectedParts)
   {
     var si = ServiceImage.FromBinPath(binPath);
-    Assert.EndsWith(".exe", si.Filename.Unenclose(), StringComparison.OrdinalIgnoreCase);
-    Assert.Equal(expectedParts, si.ArgumentParts.Count);
+    Assert.EndsWith(".exe", si.Filename, StringComparison.OrdinalIgnoreCase);
+    Assert.Equal(expectedParts, si.Arguments.SplitQuotedString().Length);
   }
 
   [Theory]
