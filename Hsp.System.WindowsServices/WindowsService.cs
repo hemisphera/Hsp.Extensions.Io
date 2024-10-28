@@ -12,6 +12,7 @@ namespace Hsp.System.WindowsServices
   {
     private static async Task RunSc(params string[] args)
     {
+      SecurityHelpers.AssertAdministrator();
       var cr = new CommandLineRunner();
       var proc = cr.Execute("sc.exe", string.Join(" ", args));
       await proc.Wait(0);
