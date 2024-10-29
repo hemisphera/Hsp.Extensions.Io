@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
@@ -11,7 +13,7 @@ using TimeoutException = System.ServiceProcess.TimeoutException;
 
 namespace Hsp.System.WindowsServices
 {
-  public class WindowsService
+  public class WindowsService : IDisposable
   {
     private static async Task RunSc(ILogger? logger, params string[] args)
     {
@@ -223,6 +225,11 @@ namespace Hsp.System.WindowsServices
           throw new TimeoutException(
             $"The given timeout '{waitTimeout.TotalMilliseconds}'ms has elapsed while waiting for service '{Name}' to reach status '{reqStatus}'.");
       } while (serviceStatus != reqStatus);
+    }
+
+    public void Dispose()
+    {
+      _controller.Dispose();
     }
   }
 }
