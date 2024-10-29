@@ -55,6 +55,8 @@ namespace Hsp.System.WindowsServices
 
     private readonly ServiceController _controller;
 
+    private CancellableTask? _worker;
+
 
     public string Name { get; }
 
@@ -227,9 +229,43 @@ namespace Hsp.System.WindowsServices
       } while (serviceStatus != reqStatus);
     }
 
+    public void StartEventLogStream(ILogger logger, TimeSpan? frequency = null)
+    {
+      var delay = frequency ?? TimeSpan.FromSeconds(1);
+      _worker?.Dispose();
+      _worker = new CancellableTask(async ct =>
+      {
+        var lastEntry = DateTime.Now;
+        while (!ct.IsCancellationRequested)
+        {
+          var eventLog = new EventLog("Application");
+          await Task.Delay(delay, ct);
+          var newEntries = eventLog.Entries.OfType<EventLogEntry>()
+            .Where(e => e.Source == Name)
+            .Where(e => e.TimeGenerated >= lastEntry)
+            .ToArray();
+          lastEntry = DateTime.Now;
+          if (newEntries.Length == 0) continue;
+
+          foreach (var entry in newEntries.Where(t => t.EntryType == EventLogEntryType.Information))
+            logger.LogInformation(entry.Message);
+          foreach (var entry in newEntries.Where(t => t.EntryType == EventLogEntryType.Warning))
+            logger.LogWarning(entry.Message);
+          foreach (var entry in newEntries.Where(t => t.EntryType == EventLogEntryType.Error))
+            logger.LogError(entry.Message);
+        }
+      });
+    }
+
+    public void StopEventLogStream()
+    {
+      _worker?.Dispose();
+    }
+
     public void Dispose()
     {
       _controller.Dispose();
+      _worker?.Dispose();
     }
   }
 }
