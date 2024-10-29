@@ -5,6 +5,7 @@ using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using Hsp.Extensions.Io;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using TimeoutException = System.ServiceProcess.TimeoutException;
 
@@ -12,11 +13,17 @@ namespace Hsp.System.WindowsServices
 {
   public class WindowsService
   {
-    private static async Task RunSc(params string[] args)
+    private static async Task RunSc(ILogger? logger, params string[] args)
     {
       SecurityHelpers.AssertAdministrator();
       var cr = new CommandLineRunner();
       var proc = cr.Execute("sc.exe", string.Join(" ", args));
+      if (logger != null)
+      {
+        proc.OutputLines.ForEach(a => logger.LogInformation(a));
+        proc.ErrorLines.ForEach(a => logger.LogError(a));
+      }
+
       await proc.Wait(0);
     }
 
@@ -25,23 +32,23 @@ namespace Hsp.System.WindowsServices
       return new WindowsService(name);
     }
 
-    public static async Task<WindowsService> Create(string name, ServiceImage image)
+    public static async Task<WindowsService> Create(string name, ServiceImage image, ILogger? logger = null)
     {
-      await RunSc("create", name, "binPath= tmp.exe");
+      await RunSc(logger, "create", name, "binPath= tmp.exe");
       var instance = Open(name);
       instance.Image = image;
       return instance;
     }
 
 
-    public static Task Delete(WindowsService service)
+    public static Task Delete(WindowsService service, ILogger? logger = null)
     {
-      return Delete(service.Name);
+      return Delete(service.Name, logger);
     }
 
-    public static async Task Delete(string name)
+    public static async Task Delete(string name, ILogger? logger = null)
     {
-      await RunSc("delete", name);
+      await RunSc(logger, "delete", name);
     }
 
     private readonly ServiceController _controller;
