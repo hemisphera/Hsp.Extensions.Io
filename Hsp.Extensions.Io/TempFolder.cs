@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 
 namespace Hsp.Extensions.Io
 {
@@ -61,7 +63,33 @@ namespace Hsp.Extensions.Io
     /// <param name="filename">The full path to the ZIP filename to be created</param>
     public void SaveAsZip(string filename)
     {
+      if (File.Exists(filename)) File.Delete(filename);
       ZipFile.CreateFromDirectory(FolderPath, filename);
+    }
+
+    /// <summary>
+    /// Writes a string as file into the folder.
+    /// </summary>
+    /// <param name="filename">The name of the file to create.</param>
+    /// <param name="data">The data of the file to write.</param>
+    /// <param name="encoding">The encoding to use for the file. If null, UTF-8 is used.</param>
+    /// <returns>The full path to the file created.</returns>
+    public string WriteFile(string filename, string data, Encoding? encoding = null)
+    {
+      var bytes = (encoding ?? Encoding.UTF8).GetBytes(data);
+      return WriteFile(filename, bytes);
+    }
+
+    /// <summary>
+    /// Writes the strings as file into the folder terminating each line with [newline].
+    /// </summary>
+    /// <param name="filename">The name of the file to create.</param>
+    /// <param name="data">The data of the file to write.</param>
+    /// <param name="encoding">The encoding to use for the file. If null, UTF-8 is used.</param>
+    /// <returns>The full path to the file created.</returns>
+    public string WriteFile(string filename, IEnumerable<string> data, Encoding? encoding = null)
+    {
+      return WriteFile(filename, string.Join(Environment.NewLine, data), encoding);
     }
 
     /// <summary>
@@ -77,6 +105,16 @@ namespace Hsp.Extensions.Io
     }
 
     /// <summary>
+    /// Gets the file info of a file in the folder.
+    /// </summary>
+    /// <param name="path">The path to the file within the folder.</param>
+    /// <returns>The file info.</returns>
+    public FileInfo GetFile(string path)
+    {
+      return new FileInfo(Path.Combine(FolderPath, path));
+    }
+
+    /// <summary>
     /// Writes a stream as file into the folder.
     /// </summary>
     /// <param name="filename">The name of the file to create.</param>
@@ -84,11 +122,12 @@ namespace Hsp.Extensions.Io
     /// <returns>The full path to the file created.</returns>
     public string WriteFile(string filename, Stream data)
     {
-      var fullFilename = Path.Combine(FolderPath, filename);
-      using (var fs = File.Create(fullFilename))
+      var fi = GetFile(filename);
+      fi.Directory?.Create();
+      using (var fs = fi.Create())
         data.CopyTo(fs);
 
-      return fullFilename;
+      return fi.FullName;
     }
 
     /// <summary>
@@ -99,15 +138,10 @@ namespace Hsp.Extensions.Io
     /// <returns>The full path to the folder where the extracted files reside.</returns>
     public string ExtractArchive(Stream s, string subFolder = "")
     {
-      var folder = FolderPath;
       using (var za = new ZipArchive(s))
       {
-        if (!string.IsNullOrEmpty(subFolder))
-          folder = Path.Combine(folder, subFolder);
-        za.ExtractToDirectory(folder);
+        return Folder.ExtractArchive(za, subFolder);
       }
-
-      return folder;
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileSystemGlobbing;
@@ -269,6 +270,52 @@ namespace Hsp.Extensions.Io
       {
         callback?.Invoke(file);
       }
+    }
+
+    /// <summary>
+    /// Extracts a zip archive to the given destination directory.
+    /// This is a workaround for the missing ExtractToDirectory method in .NET Standard 2.0.
+    /// </summary>
+    /// <param name="folder">The folder to extract the archive into.</param>
+    /// <param name="archivePath">The full path to the archive to extract.</param>
+    /// <param name="subFolder">An optional subdirectory within "folder" to extract to.</param>
+    /// <param name="overwrite">Overwrite existing files?</param>
+    public static string ExtractArchive(this DirectoryInfo folder, string archivePath, string? subFolder = null, bool overwrite = true)
+    {
+      using (var fs = File.OpenRead(archivePath))
+      using (var archive = new ZipArchive(fs))
+      {
+        return folder.ExtractArchive(archive, subFolder, overwrite);
+      }
+    }
+
+    /// <summary>
+    /// Extracts a zip archive to the given destination directory.
+    /// This is a workaround for the missing ExtractToDirectory method in .NET Standard 2.0.
+    /// </summary>
+    /// <param name="folder">The folder to extract the archive into.</param>
+    /// <param name="archive">The archive to extract.</param>
+    /// <param name="subFolder">An optional subdirectory within "folder" to extract to.</param>
+    /// <param name="overwrite">Overwrite existing files?</param>
+    public static string ExtractArchive(this DirectoryInfo folder, ZipArchive archive, string? subFolder = null, bool overwrite = true)
+    {
+      var destinationFolderPath = folder.FullName;
+      if (!subFolder.IsNullOrEmpty())
+        destinationFolderPath = Path.Combine(destinationFolderPath, subFolder);
+
+      foreach (var entry in archive.Entries)
+      {
+        var fi = new FileInfo(Path.Combine(destinationFolderPath, entry.FullName));
+        fi.Directory?.Create();
+        if (fi.Exists && overwrite)
+        {
+          fi.Delete();
+        }
+
+        entry.ExtractToFile(fi.FullName);
+      }
+
+      return destinationFolderPath;
     }
   }
 }
