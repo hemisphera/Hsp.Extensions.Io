@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Ionic.Zip;
+using System.IO.Compression;
 
 namespace Hsp.Extensions.Io
 {
@@ -39,10 +39,16 @@ namespace Hsp.Extensions.Io
     /// <param name="rewindStream">Specifies if the output stream should be rewinded back to position 0 after creation</param>
     public void SaveAsZip(Stream s, bool rewindStream = false)
     {
-      using (var zf = new ZipFile())
+      var tf = new FileInfo(Path.GetTempFileName());
+      try
       {
-        zf.AddDirectory(FolderPath);
-        zf.Save(s);
+        SaveAsZip(tf.FullName);
+        using (var fs = tf.OpenRead())
+          fs.CopyTo(s);
+      }
+      finally
+      {
+        if (tf.Exists) tf.Delete();
       }
 
       if (rewindStream)
@@ -55,8 +61,7 @@ namespace Hsp.Extensions.Io
     /// <param name="filename">The full path to the ZIP filename to be created</param>
     public void SaveAsZip(string filename)
     {
-      using (var fs = File.OpenWrite(filename))
-        SaveAsZip(fs);
+      ZipFile.CreateFromDirectory(FolderPath, filename);
     }
 
     /// <summary>
@@ -95,11 +100,11 @@ namespace Hsp.Extensions.Io
     public string ExtractArchive(Stream s, string subFolder = "")
     {
       var folder = FolderPath;
-      using (var za = ZipFile.Read(s))
+      using (var za = new ZipArchive(s))
       {
-        if (!String.IsNullOrEmpty(subFolder))
+        if (!string.IsNullOrEmpty(subFolder))
           folder = Path.Combine(folder, subFolder);
-        za.ExtractAll(folder, ExtractExistingFileAction.OverwriteSilently);
+        za.ExtractToDirectory(folder);
       }
 
       return folder;
