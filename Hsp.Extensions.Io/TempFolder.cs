@@ -25,7 +25,7 @@ namespace Hsp.Extensions.Io
     /// <param name="folderPath">Specfies the folder name to be used. If this is empty, a random default name will be generated</param>
     public TempFolder(string folderPath = "")
     {
-      if (String.IsNullOrEmpty(folderPath))
+      if (string.IsNullOrEmpty(folderPath))
         folderPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
       Folder = new DirectoryInfo(folderPath);
       Folder.Create();

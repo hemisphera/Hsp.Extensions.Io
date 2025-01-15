@@ -10,6 +10,11 @@ namespace Hsp.Extensions.Io
   /// </summary>
   public static class StringExtensions
   {
+    /// <summary>
+    /// Checks if a string is null or empty.
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
     {
       return string.IsNullOrEmpty(str);
@@ -102,7 +107,7 @@ namespace Hsp.Extensions.Io
     {
       instr = instr.Trim();
       var isEnclosed = instr.StartsWith(delim) && instr.EndsWith(delim);
-      
+
       return isEnclosed
         ? instr.Substring(delim.Length, instr.Length - delim.Length * 2)
         : instr;

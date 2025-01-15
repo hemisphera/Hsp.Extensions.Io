@@ -22,9 +22,9 @@ namespace Hsp.Extensions.Io
 
     private readonly List<string> _errorLines = new List<string>();
 
-    private readonly Action<string> _outputCallback;
+    private readonly Action<string>? _outputCallback;
 
-    private readonly Action<string> _errorCallback;
+    private readonly Action<string>? _errorCallback;
 
     /// <summary>
     /// Returns the process ID of the spawned process.
@@ -63,8 +63,8 @@ namespace Hsp.Extensions.Io
 
     private CommandLineProcess(
       Process proc, TimeSpan timeout,
-      Action<string> outputCallback,
-      Action<string> errorCallback)
+      Action<string>? outputCallback,
+      Action<string>? errorCallback)
     {
       _process = proc;
       _timeout = timeout;
@@ -79,9 +79,9 @@ namespace Hsp.Extensions.Io
 
 
     internal static CommandLineProcess Create(
-      string filename, string args, TimeSpan timeout, string workingDir,
-      Action<string> outputCallback,
-      Action<string> errorCallback)
+      string filename, string args, TimeSpan timeout, string? workingDir,
+      Action<string>? outputCallback,
+      Action<string>? errorCallback)
     {
       var proc = new Process
       {
@@ -99,7 +99,7 @@ namespace Hsp.Extensions.Io
           CreateNoWindow = true
         }
       };
-      if (!String.IsNullOrEmpty(workingDir))
+      if (!string.IsNullOrEmpty(workingDir))
         proc.StartInfo.WorkingDirectory = workingDir;
 
       var instance = new CommandLineProcess(proc, timeout, outputCallback, errorCallback);
@@ -107,7 +107,7 @@ namespace Hsp.Extensions.Io
       proc.Start();
       proc.BeginOutputReadLine();
       proc.BeginErrorReadLine();
-      var unused = instance.StartWatchdog();
+      _ = instance.StartWatchdog();
 
       return instance;
     }
@@ -151,7 +151,7 @@ namespace Hsp.Extensions.Io
 
     private void Proc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
     {
-      if (String.IsNullOrEmpty(e?.Data)) return;
+      if (string.IsNullOrEmpty(e.Data)) return;
 
       lock (_errorLines)
         _errorLines.Add(e.Data);
@@ -160,7 +160,7 @@ namespace Hsp.Extensions.Io
 
     private void Proc_OutputDataReceived(object sender, DataReceivedEventArgs e)
     {
-      if (String.IsNullOrEmpty(e?.Data)) return;
+      if (string.IsNullOrEmpty(e.Data)) return;
 
       lock (_outputLines)
         _outputLines.Add(e.Data);
@@ -215,8 +215,8 @@ namespace Hsp.Extensions.Io
     /// <inheritdoc />
     public void Dispose()
     {
-      _cts?.Dispose();
-      _process?.Dispose();
+      _cts.Dispose();
+      _process.Dispose();
     }
   }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
@@ -131,7 +130,7 @@ namespace Hsp.System.WindowsServices
     }
 
 
-    private object GetRegistryKeyValue(string name)
+    private object? GetRegistryKeyValue(string name)
     {
       using (var key = GetRegistryKey())
       {

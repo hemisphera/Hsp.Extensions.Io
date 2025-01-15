@@ -21,6 +21,10 @@ namespace Hsp.Extensions.Io
     /// </summary>
     public bool IsLocked => File.Exists(_filePath);
 
+    /// <summary>
+    /// Specifies the polling frequency for checking the lock-file.
+    /// This defaults to 600ms + a random value between -200 and 200ms.
+    /// </summary>
     public TimeSpan PollingFrequency { get; set; }
 
 
@@ -42,16 +46,14 @@ namespace Hsp.Extensions.Io
     /// <param name="withLock">Whether to lock the file once it has been released.</param>
     public async Task Wait(bool withLock = true)
     {
-      Stopwatch sw = null;
+      Stopwatch? sw = null;
       while (IsLocked)
       {
         await Task.Delay(PollingFrequency);
-        if (sw == null || sw.Elapsed > ProcessCheckFrequency)
-        {
-          sw?.Stop();
-          if (!await DeleteFileIfOrphaned())
-            sw = Stopwatch.StartNew();
-        }
+        if (sw != null && sw.Elapsed <= ProcessCheckFrequency) continue;
+        sw?.Stop();
+        if (!await DeleteFileIfOrphaned())
+          sw = Stopwatch.StartNew();
       }
 
       if (withLock)
@@ -78,11 +80,11 @@ namespace Hsp.Extensions.Io
     /// </summary>
     /// <returns>The process that currently owns the lock-file.</returns>
     /// <exception cref="ProcessNotFoundException"></exception>
-    public async Task<Process> GetLockedByProcess()
+    public async Task<Process?> GetLockedByProcess()
     {
       if (!IsLocked) return null;
 
-      Process process = null;
+      Process? process = null;
       var pidText = string.Empty;
       try
       {

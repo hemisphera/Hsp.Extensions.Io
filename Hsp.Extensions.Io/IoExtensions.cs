@@ -77,7 +77,9 @@ namespace Hsp.Extensions.Io
       {
         var sourceFullPath = Path.Combine(files.Root.FullName, file);
         var targetFullPath = Path.Combine(targetFolder, file);
-        Directory.CreateDirectory(Path.GetDirectoryName(targetFullPath));
+        var targetDirectory = Path.GetDirectoryName(targetFullPath);
+        if (!string.IsNullOrEmpty(targetDirectory))
+          Directory.CreateDirectory(targetDirectory);
         File.Copy(sourceFullPath, targetFullPath, true);
         if (deleteSource)
           File.Delete(sourceFullPath);
@@ -115,7 +117,7 @@ namespace Hsp.Extensions.Io
     /// <param name="targetPath">The target folder</param>
     /// <param name="callback">A callback that is called for every file found within the folder.</param>
     /// <param name="deleteSourceFile">Specifies whether files should be deleted after being copied</param>
-    public static void CopyTo(this DirectoryInfo dir, string targetPath, Func<FileSystemInfo, bool?> callback, bool deleteSourceFile = false)
+    public static void CopyTo(this DirectoryInfo dir, string targetPath, Func<FileSystemInfo, bool?>? callback, bool deleteSourceFile = false)
     {
       dir.ForEachFolder(subDir =>
       {
@@ -210,7 +212,7 @@ namespace Hsp.Extensions.Io
     /// <param name="folder">The folder to collect files from.</param>
     /// <param name="callback">The callback to determine whether to include the file or not.</param>
     /// <returns>The collection result.</returns>
-    public static CollectFilesResult CollectFiles(this DirectoryInfo folder, Func<FileSystemInfo, bool?> callback = null)
+    public static CollectFilesResult CollectFiles(this DirectoryInfo folder, Func<FileSystemInfo, bool?>? callback = null)
     {
       var items = new CollectFilesResult(folder);
       folder.ForEachEntry(args =>
@@ -229,7 +231,7 @@ namespace Hsp.Extensions.Io
     /// <param name="includePatterns">The include patterns. If this is not specified, all files are included.</param>
     /// <param name="excludePatterns">The exclude patterns.</param>
     /// <returns>The collection result.</returns>
-    public static CollectFilesResult CollectFiles(this DirectoryInfo folder, string[] includePatterns, string[] excludePatterns = null)
+    public static CollectFilesResult CollectFiles(this DirectoryInfo folder, string[]? includePatterns, string[]? excludePatterns = null)
     {
       if (includePatterns?.Any() != true)
         includePatterns = new[] { "**/*" };
@@ -255,7 +257,7 @@ namespace Hsp.Extensions.Io
     /// <param name="folder">The folder.</param>
     /// <param name="callback">The callback to execute.</param>
     /// <param name="recurse">Specifies whether to recurse into subfolders.</param>
-    public static void ForEachEntry(this DirectoryInfo folder, Func<FileSystemInfo, bool?> callback, bool recurse = false)
+    public static void ForEachEntry(this DirectoryInfo folder, Func<FileSystemInfo, bool?>? callback, bool recurse = false)
     {
       foreach (var subDir in folder.EnumerateDirectories())
       {
