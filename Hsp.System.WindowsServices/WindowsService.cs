@@ -30,7 +30,9 @@ namespace Hsp.System.WindowsServices
 
     public static WindowsService Open(string name)
     {
-      return new WindowsService(name);
+      var controller = ServiceController.GetServices().FirstOrDefault(a => a.ServiceName.Equals(name));
+      if (controller == null) throw new KeyNotFoundException($"Service '{name}' does not exist.");
+      return new WindowsService(controller);
     }
 
     public static async Task<WindowsService> Create(string name, ServiceImage image, ILogger? logger = null)
@@ -40,7 +42,6 @@ namespace Hsp.System.WindowsServices
       instance.Image = image;
       return instance;
     }
-
 
     public static Task Delete(WindowsService service, ILogger? logger = null)
     {
@@ -52,12 +53,21 @@ namespace Hsp.System.WindowsServices
       await RunSc(logger, "delete", name);
     }
 
+    public static IEnumerable<WindowsService> Enumerate(Predicate<WindowsService>? filter)
+    {
+      var services = ServiceController.GetServices();
+      return services
+        .Select(a => new WindowsService(a))
+        .Where(a => filter == null || filter(a));
+    }
+
+
     private readonly ServiceController _controller;
 
     private CancellableTask? _worker;
 
 
-    public string Name { get; }
+    public string Name => _controller.ServiceName;
 
     public ServiceControllerStatus Status
     {
@@ -121,12 +131,9 @@ namespace Hsp.System.WindowsServices
     }
 
 
-    private WindowsService(string name)
+    private WindowsService(ServiceController controller)
     {
-      Name = name;
-      var exists = ServiceController.GetServices().Any(a => a.ServiceName.Equals(name, StringComparison.OrdinalIgnoreCase));
-      if (!exists) throw new KeyNotFoundException($"Service '{name}' does not exist.");
-      _controller = new ServiceController(name);
+      _controller = controller;
     }
 
 
