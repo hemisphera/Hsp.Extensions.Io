@@ -20,6 +20,11 @@ namespace Hsp.Extensions.Io
     /// The folder object.
     /// </summary>
     public DirectoryInfo Folder { get; }
+    
+    /// <summary>
+    /// Specifies if the folder is deleted on disposal.
+    /// </summary>
+    public bool DoNotDelete { get; set; }
 
 
     /// <summary>
@@ -162,8 +167,8 @@ namespace Hsp.Extensions.Io
     {
       Folder.Refresh();
       if (!Folder.Exists) return;
-      Folder.ForEachFile(file => File.SetAttributes(file.FullName, FileAttributes.Normal));
-      Folder.Delete(true);
+      if (DoNotDelete) return;
+      Folder.ForceDelete();
     }
 
     /// <inheritdoc />

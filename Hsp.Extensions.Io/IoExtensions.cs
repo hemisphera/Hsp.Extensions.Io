@@ -317,5 +317,16 @@ namespace Hsp.Extensions.Io
 
       return destinationFolderPath;
     }
+
+    /// <summary>
+    /// Forcedly deletes an entire folder including all subfolders and contained files.
+    /// This will also delete files marked as read-only by first unlocking them.
+    /// </summary>
+    /// <param name="folder">The folder to delete.</param>
+    public static void ForceDelete(this DirectoryInfo folder)
+    {
+      folder.ForEachFile(file => File.SetAttributes(file.FullName, FileAttributes.Normal));
+      folder.Delete(true);
+    }
   }
 }
