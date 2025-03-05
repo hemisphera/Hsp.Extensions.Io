@@ -28,9 +28,10 @@ namespace Hsp.System.WindowsServices
       await proc.Wait(0);
     }
 
-    public static WindowsService Open(string name)
+    public static WindowsService Open(string name, bool ignoreCase = true)
     {
-      var controller = ServiceController.GetServices().FirstOrDefault(a => a.ServiceName.Equals(name));
+      var comp = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+      var controller = ServiceController.GetServices().FirstOrDefault(a => a.ServiceName.Equals(name, comp));
       if (controller == null) throw new KeyNotFoundException($"Service '{name}' does not exist.");
       return new WindowsService(controller);
     }
