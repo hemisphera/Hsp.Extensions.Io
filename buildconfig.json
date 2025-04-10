@@ -1,4 +1,5 @@
 {
+    "SkipTests": true,
     "ProjectsToPack": [
         "Hsp.Extensions.Io\\Hsp.Extensions.Io.csproj",
         "Hsp.System.WindowsServices\\Hsp.System.WindowsServices.csproj"
