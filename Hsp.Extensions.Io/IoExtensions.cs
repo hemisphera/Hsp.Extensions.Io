@@ -328,5 +328,47 @@ namespace Hsp.Extensions.Io
       folder.ForEachFile(file => File.SetAttributes(file.FullName, FileAttributes.Normal));
       folder.Delete(true);
     }
+
+    /// <summary>
+    /// Creates a directory info object from the given path.
+    /// </summary>
+    /// <param name="path">The path to create the directory info object from.</param>
+    /// <returns></returns>
+    public static DirectoryInfo? ToDirectoryInfo(this string? path)
+    {
+      return path.IsNullOrEmpty() ? null : new DirectoryInfo(path);
+    }
+
+    /// <summary>
+    /// Creates a directory info object from the given path.
+    /// If the path is empty or null, a exception is thrown.
+    /// </summary>
+    /// <param name="path">The path to create the directory info object from.</param>
+    /// <returns></returns>
+    public static DirectoryInfo ToDirectoryInfoOrFail(this string? path)
+    {
+      return path.ToDirectoryInfo() ?? throw new ArgumentNullException(path);
+    }
+
+    /// <summary>
+    /// Creates a file info object from the given path.
+    /// </summary>
+    /// <param name="path">The path to create the file info object from.</param>
+    /// <returns></returns>
+    public static FileInfo? ToFileInfo(this string? path)
+    {
+      return path.IsNullOrEmpty() ? null : new FileInfo(path);
+    }
+
+    /// <summary>
+    /// Creates a file info object from the given path.
+    /// If the path is empty or null, a exception is thrown.
+    /// </summary>
+    /// <param name="path">The path to create the file info object from.</param>
+    /// <returns></returns>
+    public static FileInfo ToFileInfoOrFail(this string? path)
+    {
+      return path.ToFileInfo() ?? throw new ArgumentNullException(path);
+    }
   }
 }
