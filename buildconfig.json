@@ -1,5 +1,6 @@
 {
     "ProjectsToPack": [
-        "Hsp.Extensions.Io\\Hsp.Extensions.Io.csproj"
+        "Hsp.Extensions.Io\\Hsp.Extensions.Io.csproj",
+        "Hsp.System.WindowsServices\\Hsp.System.WindowsServices.csproj"
     ]
 }
