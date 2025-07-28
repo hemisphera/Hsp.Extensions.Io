@@ -10,6 +10,16 @@ namespace Hsp.Extensions.Io
   public static class ZipExtensions
   {
     /// <summary>
+    /// Adds a directory entry without content.
+    /// </summary>
+    /// <param name="archive">The ZIP archive.</param>
+    /// <param name="entryName">The name of the entry to add.</param>
+    public static void AddEntry(this ZipArchive archive, string entryName)
+    {
+      archive.CreateEntry(entryName);
+    }
+
+    /// <summary>
     /// Adds an entry with the given name and the text contents (and encoding) to the ZIP archive.
     /// </summary>
     /// <param name="archive">The ZIP archive.</param>

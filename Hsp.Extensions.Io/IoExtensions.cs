@@ -306,7 +306,12 @@ namespace Hsp.Extensions.Io
       foreach (var entry in archive.Entries)
       {
         var fi = new FileInfo(Path.Combine(destinationFolderPath, entry.FullName));
+        var lastCh = entry.FullName.Length == 0 ? '\0' : entry.FullName.Last();
+        var isDirectory = lastCh == '\\' || lastCh == '/';
         fi.Directory?.Create();
+
+        if (isDirectory) continue;
+
         if (fi.Exists && overwrite)
         {
           fi.Delete();
