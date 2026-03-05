@@ -21,6 +21,16 @@ namespace Hsp.Extensions.Io
     }
 
     /// <summary>
+    /// Returns an empty string if the input is null, otherwise returns the input string.
+    /// </summary>
+    /// <param name="str">The string to check for null.</param>
+    /// <returns>An empty string if the input is null, otherwise the input string.</returns>
+    public static string EmptyIfNull(this string? str)
+    {
+      return str ?? string.Empty;
+    }
+
+    /// <summary>
     /// Splits a string that contains quoted fields into an array of strings.
     /// </summary>
     /// <param name="str">The string to split.</param>
