@@ -52,7 +52,8 @@ public class ZipExtensions
     using (var zf2 = new ZipArchive(ms, ZipArchiveMode.Read))
     {
       Assert.Single(zf2.Entries);
-      using (var sr = new StreamReader(zf2.GetEntry(filename).Open()))
+      var entry = zf2.GetEntry(filename) ?? throw new ArgumentNullException();
+      using (var sr = new StreamReader(entry.Open()))
       {
         var actualContent = sr.ReadToEnd();
         Assert.Equal(content, actualContent);
