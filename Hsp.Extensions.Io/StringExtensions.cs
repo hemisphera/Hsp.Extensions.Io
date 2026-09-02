@@ -101,10 +101,12 @@ namespace Hsp.Extensions.Io
     public static string Enclose(this string instr, string delim = "\"")
     {
       instr = instr.Trim();
-      var requiresEnclose = !instr.StartsWith(delim) && !instr.EndsWith(delim);
+      var requiresEnclose = !instr.StartsWith(delim) || !instr.EndsWith(delim);
+      if (!requiresEnclose) return instr;
+
       // escape any existing delimiters
       instr = instr.Replace(delim, @"\" + delim);
-      return !requiresEnclose ? instr : $"{delim}{instr}{delim}";
+      return $"{delim}{instr}{delim}";
     }
 
     /// <summary>
