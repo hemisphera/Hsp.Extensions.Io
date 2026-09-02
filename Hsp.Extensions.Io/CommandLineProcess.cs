@@ -13,6 +13,7 @@ namespace Hsp.Extensions.Io
   public sealed class CommandLineProcess : IDisposable
   {
     private readonly TimeSpan _timeout;
+    private static readonly TimeSpan PollFrequency = TimeSpan.FromMilliseconds(250);
 
     private readonly CancellationTokenSource _cts;
 
@@ -123,7 +124,8 @@ namespace Hsp.Extensions.Io
     }
 
     /// <summary>
-    /// Asynchronously waits for the process to exit and throws an exception if the exit code is not the expected one.
+    /// Asynchronously waits for the process to exit and for all redirected output to be processed,
+    /// and throws an exception if the exit code is not the expected one.
     /// </summary>
     /// <param name="exitCodeIsValid">A predicate that determines whether the exit code is valid.</param>
     /// <param name="token">A cancellation token.</param>
@@ -131,11 +133,21 @@ namespace Hsp.Extensions.Io
     public async Task<CommandLineProcess> Wait(Predicate<int> exitCodeIsValid, CancellationToken token = default)
     {
       while (!_process.HasExited)
-        await Task.Delay(500, token);
+      {
+        await Task.Delay(PollFrequency, token);
+      }
+
+      await WaitForOutputDrain();
+
       var ec = ExitCode ?? -1; // exit code will never be null when _process has exited
       if (!exitCodeIsValid(ec))
         throw new InvalidOperationException($"The process has exited with an invalid exit code ({ec})");
       return this;
+    }
+
+    private Task WaitForOutputDrain()
+    {
+      return Task.Run(_process.WaitForExit);
     }
 
     /// <summary>
@@ -154,7 +166,10 @@ namespace Hsp.Extensions.Io
       if (string.IsNullOrEmpty(e.Data)) return;
 
       lock (_errorLines)
+      {
         _errorLines.Add(e.Data);
+      }
+
       _errorCallback?.Invoke(e.Data);
     }
 
@@ -163,7 +178,10 @@ namespace Hsp.Extensions.Io
       if (string.IsNullOrEmpty(e.Data)) return;
 
       lock (_outputLines)
+      {
         _outputLines.Add(e.Data);
+      }
+
       _outputCallback?.Invoke(e.Data);
     }
 
@@ -177,7 +195,9 @@ namespace Hsp.Extensions.Io
       _process.Kill();
 
       lock (_errorLines)
+      {
         _errorLines.Add(message);
+      }
     }
 
     private async Task StartWatchdog()
@@ -186,7 +206,7 @@ namespace Hsp.Extensions.Io
       var start = DateTime.Now;
       while (!_process.HasExited)
       {
-        await Task.Delay(500, token);
+        await Task.Delay(PollFrequency, token);
         token.ThrowIfCancellationRequested();
         if (DateTime.Now.Subtract(start) > _timeout)
           Abort("The operation has timed out.");
